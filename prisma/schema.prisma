@@ -1,0 +1,389 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
+}
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String    @unique
+  password      String
+  role          String    @default("user")
+  status        String    @default("active")
+  image         String?
+  bio           String?
+  profession    String[]
+  socialLinks   Json?
+  lastLogin     DateTime?
+  loginAttempts Int       @default(0)
+  bannedUntil   DateTime?
+  banReason     String?
+  verifiedAt    DateTime?
+  twoFactorEnabled Boolean @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  posts         Post[]
+  portfolios    Portfolio[]
+  testimonials  Testimonial[]
+  activities    UserActivity[]  @relation("UserToActivity")
+  sessions      UserSession[]   @relation("UserToSession")
+  loginHistory  LoginHistory[]
+  notifications Notification[]
+  notificationPreferences Json?
+  securityLogs    SecurityLog[]
+  securityAudits  SecurityAudit[]
+  professionalInfo Json?
+  preferences Json?
+}
+
+model Portfolio {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  category    String    // Gallery, Video, External Link etc
+  description String
+  image       String
+  cloudinaryId String?
+  client      String?
+  date        DateTime
+  services    String[]
+  budget      String?
+  likes       Int       @default(0)
+  views       Int       @default(0)
+  strategy    String?
+  design      String?
+  userExperience String?
+  author      User      @relation(fields: [authorId], references: [id])
+  authorId    String    @db.ObjectId
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Post {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  slug        String    @unique
+  content     String
+  excerpt     String?
+  coverImage  String
+  cloudinaryId String?
+  category    String    // Development, Quote, Technician etc
+  readTime    String    // "4 min read"
+  status      String    @default("draft")
+  tags        String[]
+  author      User      @relation(fields: [authorId], references: [id])
+  authorId    String    @db.ObjectId
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  seoTitle        String?
+  seoDescription  String?
+  seoKeywords     String?
+  featured        Boolean   @default(false)
+  publishDate     DateTime?
+  views       Int       @default(0)
+}
+
+model Resume {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  type        String    // education, experience, skills
+  title       String
+  organization String
+  location    String?
+  startDate   DateTime
+  endDate     DateTime?
+  current     Boolean   @default(false)
+  grade       String?   // For education: "3.90/4"
+  description String?
+  skills      Json?     // For skills type: { "name": "HTML", "percentage": 100 }
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Testimonial {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  position    String
+  company     String
+  image       String?
+  cloudinaryId String?
+  rating      Int       @default(5)
+  review      String
+  projectType String    // "Android App Development"
+  date        String    // "Mar 4, 2015 - Aug 30, 2021"
+  author      User      @relation(fields: [authorId], references: [id])
+  authorId    String    @db.ObjectId
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Client {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  logo        String
+  cloudinaryId String?
+  category    String    // JavaScript, Product Design, WordPress etc
+  link        String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Service {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  icon        String
+  description String
+  features    String[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model PricingPlan {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    // Static, Standard, Premium
+  price       Float
+  currency    String    @default("USD")
+  duration    String    @default("monthly")
+  description String
+  features    String[]
+  deliveryTime String   // "2 Days Delivery"
+  revisions   String    // "Unlimited Revission"
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Settings {
+  id                  String    @id @default(auto()) @map("_id") @db.ObjectId
+  // Site Settings
+  siteName            String    @default("InBio")
+  siteDescription     String?
+  siteKeywords        String?
+  logo                String?
+  favicon             String?
+  
+  // Theme Settings
+  theme               String    @default("light")
+  primaryColor        String    @default("#ff014f")
+  accentColor         String?
+  fontFamily          String    @default("Inter")
+  
+  // SEO Settings
+  metaTitle           String?
+  metaDescription     String?
+  metaKeywords        String?
+  ogImage             String?
+  
+  // Analytics
+  googleAnalyticsId   String?
+  facebookPixelId     String?
+  
+  // Social Media
+  socialLinks         Json?     // Twitter, Facebook, LinkedIn, etc.
+  
+  // Email Settings
+  smtpHost            String?
+  smtpPort            Int?
+  smtpUser            String?
+  smtpPassword        String?
+  emailFrom           String?
+  emailTemplate       Json?     // Email templates for different purposes
+  
+  // Security Settings
+  enableTwoFactor     Boolean   @default(false)
+  passwordPolicy      Json?     // Min length, require numbers, special chars, etc.
+  sessionTimeout      Int       @default(30)    // in minutes
+  maxLoginAttempts    Int       @default(5)
+  
+  // Content Settings
+  enableBlog          Boolean   @default(true)
+  enablePortfolio     Boolean   @default(true)
+  enableTestimonials  Boolean   @default(true)
+  postsPerPage        Int       @default(10)
+  moderationEnabled   Boolean   @default(true)
+  
+  // Cache Settings
+  cacheEnabled        Boolean   @default(true)
+  cacheDuration       Int       @default(3600)  // in seconds
+  
+  // Backup Settings
+  autoBackup          Boolean   @default(false)
+  backupFrequency     String    @default("daily") // daily, weekly, monthly
+  backupRetention     Int       @default(30)      // days to keep backups
+  
+  // API Settings
+  enableApi           Boolean   @default(false)
+  apiKey              String?
+  allowedOrigins      String[]  // CORS settings
+  
+  // Notification Settings
+  notificationTypes   Json?     // Types of notifications to send
+  pushEnabled         Boolean   @default(false)
+  vapidPublicKey      String?
+  vapidPrivateKey     String?
+
+  // Custom Code
+  customCss          String?
+  customJs           String?
+  headerScripts      String?
+  footerScripts      String?
+  
+  // System Settings
+  maintenanceMode    Boolean   @default(false)
+  debugMode          Boolean   @default(false)
+  
+  // Timestamps
+  updatedAt          DateTime  @updatedAt
+  updatedBy          String?   @db.ObjectId
+}
+
+model Analytics {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  pageUrl     String
+  userAgent   String
+  browser     String
+  device      String
+  os          String
+  country     String
+  city        String?
+  ip          String
+  eventType   String?   // navigation, click, etc.
+  sessionId   String?   // to track unique sessions
+  referrer    String?   // where the user came from
+  timestamp   DateTime  @default(now())
+  clickX    Int?
+  clickY    Int?
+}
+
+model PageView {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  postId      String?   @db.ObjectId
+  url         String    @unique
+  views       Int       @default(0)
+  uniqueViews Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model ClickEvent {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  pageUrl   String
+  x         Int
+  y         Int
+  element   String
+  timestamp DateTime @default(now())
+}
+
+model UserPath {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionId    String
+  fromUrl      String
+  toUrl        String
+  timestamp    DateTime @default(now())
+}
+
+model UserActivity {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  action    String   // login, logout, update_profile, etc.
+  target    String?  // affected resource
+  metadata  Json?    // additional activity data
+  timestamp DateTime @default(now())
+  user      User     @relation("UserToActivity", fields: [userId], references: [id])
+}
+
+model UserSession {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  startTime DateTime @default(now())
+  endTime   DateTime?
+  duration  Int?     // in seconds
+  device    String?
+  browser   String?
+  ip        String?
+  user      User     @relation("UserToSession", fields: [userId], references: [id])
+}
+
+model LoginHistory {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  ip        String?
+  userAgent String?
+  location  String?
+  success   Boolean
+  reason    String?
+  timestamp DateTime @default(now())
+}
+
+model Notification {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String    @db.ObjectId
+  title       String
+  message     String
+  type        String    // info, success, warning, error
+  read        Boolean   @default(false)
+  link        String?   // Optional link to navigate when clicked
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model Backup {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  filename    String
+  size        Int?
+  type        String    // 'full', 'scheduled', 'manual'
+  status      String    // 'pending', 'completed', 'failed'
+  error       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model SecurityLog {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  type        String    // 'auth', 'access', 'change', 'threat'
+  severity    String    // 'low', 'medium', 'high', 'critical'
+  message     String
+  details     Json?
+  ip          String?
+  userAgent   String?
+  userId      String?   @db.ObjectId
+  user        User?     @relation(fields: [userId], references: [id])
+  resolved    Boolean   @default(false)
+  resolvedBy  String?   @db.ObjectId
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model SecurityRule {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  type        String    // 'ip', 'rate-limit', 'pattern', 'behavior'
+  pattern     String?   // regex pattern or rule definition
+  action      String    // 'block', 'alert', 'captcha', 'mfa'
+  enabled     Boolean   @default(true)
+  conditions  Json      // conditions that trigger the rule
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model BlockedIP {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  ip          String    @unique
+  reason      String
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model SecurityAudit {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  action      String    // 'settings_change', 'permission_change', etc.
+  userId      String    @db.ObjectId
+  user        User      @relation(fields: [userId], references: [id])
+  details     Json
+  ipAddress   String
+  userAgent   String
+  createdAt   DateTime  @default(now())
+} 

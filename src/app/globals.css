@@ -3,19 +3,209 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --primary: #ff014f;
+  --secondary: #6c757d;
+  --success: #3dc13c;
+  --info: #17a2b8;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  
+  --background-primary: #ffffff;
+  --background-secondary: #f9f9f9;
+  --background-tertiary: #f3f3f3;
+  
+  --text-primary: #1e2125;
+  --text-secondary: #3c3e41;
+  --text-tertiary: #6c757d;
+  
+  --border-light: #e9ecef;
+  --border-default: #dee2e6;
+  --border-dark: #c1c7cd;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+[data-theme='dark'] {
+  --primary: #9580ff;
+  --secondary: #a4b1cd;
+  --success: #48da7c;
+  --info: #05c5ff;
+  --warning: #ffaf36;
+  --danger: #ff3355;
+  
+  --background-primary: #141d2b;
+  --background-secondary: #1a2332;
+  --background-tertiary: #1e2936;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #a4b1cd;
+  --text-tertiary: #848891;
+  
+  --border-light: #2a3441;
+  --border-default: #1e2936;
+  --border-dark: #141d2b;
+}
+
+@layer base {
+  body {
+    @apply bg-background-primary text-text-primary transition-colors duration-200;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-opacity-90 active:bg-opacity-100;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-white hover:bg-opacity-90 active:bg-opacity-100;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary text-primary hover:bg-primary hover:text-white;
+  }
+
+  .card {
+    @apply bg-background-secondary rounded-xl border border-border-light p-6 transition-all duration-200
+    hover:shadow-lg hover:border-primary;
+  }
+
+  .input {
+    @apply bg-background-tertiary border border-border-light rounded-lg px-4 py-2
+    focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
+    transition-all duration-200;
+  }
+
+  .nav-link {
+    @apply text-text-secondary hover:text-primary transition-colors duration-200;
+  }
+
+  .section-title {
+    @apply text-3xl font-bold mb-6 text-text-primary;
+  }
+}
+
+/* Animations */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+.slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+
+.scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Add these utility classes */
+.table-header {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600;
+}
+
+.table-cell {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100;
+}
+
+.action-button {
+  @apply p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700;
+}
+
+.badge {
+  @apply px-2 py-1 text-xs font-medium rounded-full;
+}
+
+.badge-admin {
+  @apply bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200;
+}
+
+.badge-user {
+  @apply bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200;
+}
+
+.badge-editor {
+  @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+}
+
+.badge-active {
+  @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+}
+
+.badge-inactive {
+  @apply bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200;
+}
+
+.badge-banned {
+  @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-bounce-slow {
+  animation: bounce 2s infinite;
+}
+
+.btn-outline-primary {
+  @apply px-4 py-2 border-2 border-primary text-primary rounded-lg
+    hover:bg-primary hover:text-white transition-all duration-200;
+}
+
+.group-hover\:scale-110 {
+  @apply transition-transform duration-200;
+}
+
+.group:hover .group-hover\:scale-110 {
+  @apply scale-110;
+}
+
+/* Add to your existing animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-10px) rotate(-5deg); }
+  75% { transform: translateY(10px) rotate(5deg); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
 }
